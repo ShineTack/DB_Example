@@ -22,6 +22,15 @@ public class UsersDaoJdbcImpl implements UsersDao {
     //language=SQL
     private final String SQL_INSERT_USER = "INSERT INTO fix_user (first_name, last_name) VALUES (?, ?)";
 
+    //language=SQL
+    private final String SQL_SELECT_ALL_BY_FIRST_NAME = "SELECT * FROM fix_user WHERE first_name = ?";
+
+    //language=SQL
+    private final String SQL_UPDATE_USER = "UPDATE fix_users SET first_name = ?, last_name = ? WHERE id = ?";
+
+    //language=SQL
+    private final String SQL_DELETE_USER = "DELETE FROM fix_user WHERE id = ?";
+
     public UsersDaoJdbcImpl(DataSource dataSource) {
         try {
             connection = dataSource.getConnection();
@@ -32,7 +41,7 @@ public class UsersDaoJdbcImpl implements UsersDao {
 
     @Override
     public List<User> findAllByFirstName(String firstName) {
-        return null;
+        return this.findAll(SQL_SELECT_ALL_BY_FIRST_NAME);
     }
 
     @Override
@@ -72,16 +81,29 @@ public class UsersDaoJdbcImpl implements UsersDao {
 
     @Override
     public void update(User model) {
-
+        try {
+            PreparedStatement statement = connection.prepareStatement(SQL_UPDATE_USER);
+            statement.setString(1, model.getFirstName());
+            statement.setString(2, model.getLastName());
+            statement.setInt(3, model.getId());
+            statement.execute();
+        } catch (SQLException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     @Override
     public void delete(Integer id) {
-
+        try {
+            PreparedStatement statement = connection.prepareStatement(SQL_DELETE_USER);
+            statement.setInt(1, id);
+            statement.execute();
+        } catch (SQLException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
-    @Override
-    public List<User> findAll() {
+    private List<User> findAll(String query) {
         List<User> users = new LinkedList<>();
 
         try {
@@ -103,5 +125,10 @@ public class UsersDaoJdbcImpl implements UsersDao {
         } catch (SQLException e) {
             throw new IllegalStateException(e);
         }
+    }
+
+    @Override
+    public List<User> findAll() {
+        return this.findAll(SQL_SELECT_ALL);
     }
 }
