@@ -3,17 +3,17 @@ package com.example.db.models;
 public class Car {
     private Integer id;
     private String model;
-    private Integer ownerId;
+    private User owner;
 
-    public Car(Integer id, String model, Integer ownerId) {
+    public Car(Integer id, String model, User owner) {
         this.id = id;
         this.model = model;
-        this.ownerId = ownerId;
+        this.owner = owner;
     }
 
-    public Car(String model, Integer ownerId) {
+    public Car(String model, User owner) {
         this.model = model;
-        this.ownerId = ownerId;
+        this.owner = owner;
     }
 
     public Car(String model) {
@@ -36,11 +36,11 @@ public class Car {
         this.model = model;
     }
 
-    public Integer getOwnerId() {
-        return ownerId;
+    public User getOwner() {
+        return owner;
     }
 
-    public void setOwnerId(Integer ownerId) {
-        this.ownerId = ownerId;
+    public void setOwner(User owner) {
+        this.owner = owner;
     }
 }

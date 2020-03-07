@@ -1,7 +1,8 @@
 package com.example.db.servlets;
 
+import com.example.db.dao.UsersDao;
 import com.example.db.models.User;
-import com.example.db.repositories.UsersDaoJdbcImpl;
+import com.example.db.repositories.UsersDaoJdbcTemplateImpl;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 import javax.servlet.ServletException;
@@ -16,12 +17,19 @@ import java.util.Properties;
 
 @WebServlet("/users")
 public class UserServlet extends HttpServlet {
-    private UsersDaoJdbcImpl usersDaoJdbc;
+    private UsersDao usersDaoJdbc;
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        List<User> users = usersDaoJdbc.findAll();
+        List<User> users;
 
+        if (req.getParameter("firstName") != null) {
+            String firstName = req.getParameter("firstName");
+
+            users = usersDaoJdbc.findAllByFirstName(firstName);
+        } else {
+            users = usersDaoJdbc.findAll();
+        }
         req.setAttribute("usersFromServer", users);
 
         req.getServletContext().getRequestDispatcher("/jsp/users.jsp").forward(req, resp);
@@ -29,7 +37,7 @@ public class UserServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        if(req.getParameter("firstName") != null && req.getParameter("lastName") != null) {
+        if (req.getParameter("firstName") != null && req.getParameter("lastName") != null) {
             String firstName = req.getParameter("firstName");
             String lastName = req.getParameter("lastName");
             usersDaoJdbc.save(new User(firstName, lastName));
@@ -55,7 +63,7 @@ public class UserServlet extends HttpServlet {
             dataSource.setUrl(dbUrl);
             dataSource.setDriverClassName(classPath);
 
-            usersDaoJdbc = new UsersDaoJdbcImpl(dataSource);
+            usersDaoJdbc = new UsersDaoJdbcTemplateImpl(dataSource);
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }
